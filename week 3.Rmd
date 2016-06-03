@@ -1,0 +1,128 @@
+---
+title: "Week 3 Homework"
+author: "Aaron"
+date: "June 2, 2016"
+output:
+  html_document:
+    highlight: haddock
+    theme: cosmo
+  pdf_document: default
+---
+
+### Part 1:  Rat Weight Gain
+
+#### Read Data and Process Accordingly
+
+```{r message=FALSE}
+
+library(dplyr)
+library(readr)
+library(knitr)
+library(magrittr)
+
+```
+
+
+```{r}
+
+rat <- read_csv("../../../../../Downloads/RatWeightGain.csv")
+
+```
+
+Check what the data looks like:
+
+```{r}
+glimpse(rat)
+```
+
+#### Calculate means & standard deviations for 4 groups broken down by source and type
+
+The mean and standard deviation are listed in the table below:
+
+```{r}
+
+rat %>% 
+        group_by(SOURCE,TYPE) %>% 
+        summarise(mean = mean(WEIGHTGAIN), 
+                  std = sd(WEIGHTGAIN)) %>% kable()
+
+```
+
+#### Perform oneway tests twice: once for source and once for type
+
+1. test for `SOURCE`:
+
+```{r}
+
+rat %>% 
+        oneway.test(WEIGHTGAIN ~ SOURCE, ., var.equal=T)
+
+```
+
+The mean of Weight Gain between source groups are **not** significantly different. 
+
+2. test for `TYPE`:
+
+```{r}
+
+rat %>% 
+        oneway.test(WEIGHTGAIN ~ TYPE, ., var.equal=T)
+
+```
+
+The mean of Weight Gain between source groups are significantly different. 
+
+#### Perform two way test
+
+```{r}
+
+rat %>% 
+        lm(WEIGHTGAIN ~ TYPE + SOURCE, .) %>% 
+        anova()
+
+```
+
+There is likely a significant interaction between two variables. 
+
+### Part 2:  mtcars
+
+Use the `table()` function with the following combinations
+
+- The variables vs and am
+- The variables gear and carb
+- The variables cyl and gear
+
+For each of the three cases above guess what the results of a Chi-Squared analysis will be 
+
+
+Perform a Chi-Squared analysis on the mtcars data set for each of the three cases above
+
+```{r warning=F}
+# vs & am
+
+mtcars %$% 
+        table(vs, am) %>% 
+        chisq.test()
+```
+
+The counts are likely due to chance. 
+
+```{r warning=F}
+# gear & carb
+
+mtcars %$% 
+        table(gear, carb) %>% 
+        chisq.test()
+```
+
+The counts are likely due to chance, but less likely than previous pair. 
+
+```{r warning=F}
+# cyl & gear
+
+mtcars %$% 
+        table(cyl, gear) %>% 
+        chisq.test()
+```
+
+The counts are **not** likely due to chance. 
