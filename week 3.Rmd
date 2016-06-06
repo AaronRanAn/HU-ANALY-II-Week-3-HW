@@ -9,6 +9,8 @@ output:
   pdf_document: default
 ---
 
+This could also be found on my github: [http://aaronranan.github.io/HU-ANALY-II-Week-3-HW/](http://aaronranan.github.io/HU-ANALY-II-Week-3-HW/)
+
 ### Part 1:  Rat Weight Gain
 
 #### Read Data and Process Accordingly
