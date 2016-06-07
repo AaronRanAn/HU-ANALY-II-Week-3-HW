@@ -1,0 +1,89 @@
+---
+title: "Practical ANOVA and Chi Square"
+author: "James Muguira"
+date: "March 27, 2016"
+output: html_document
+---
+
+Hypothesis testing, Analysis of Variance, Chi Square (the Chi is pronoonced "Ki") and Correlation are all linked together.  The general term is hypothesis testing.  Under this umbrela fall the other methods. Consider the following:
+
+* If your independent variable is Categorical and your dependent variable is Quantitative use ANOVA
+
+* If your independent variable is Categorical and your dependent variable is Categorical use Chi Square
+
+* If your independent variable is Quantitative and your dependent variable is Quantitative use Correlation
+
+* If your independent variable is Quantitative and your dependent variable is Categorical reformulate the independent variable as a categorical variable and apply ANOVA.
+
+For each of these situations you still form a hypothesis and state it in the form of a NULL and Alternative. That is important! The type of test used to determine the validity of the hypothesis is governed by the type of the independent and dependent variable. Just to be sure we are on the same page:
+
+*Dependent variable = function(independent variables)*
+
+## ANOVA
+
+So, let's tackle a few examples.  First consider the ANOVA case.  The dependent variable is quantitative, the independent variable is categorical.  A specific example would be the following case:
+
+**We want to test the effectiveness of 5 different diets. 20 females participate and each is assigned one of 5 different diets. The weights are recorded at the start and the end of the experiment.**
+
+The independent variable is the diet type. We have the volunteers divided into 5 groups of 4 women per group. Thus, the independent variable is categorical.  The dependent variable is weight and it is quantitative.  In effect we have several populations (5 diets).  You might think we  could just use 5 t.tests but this path leads to multiple complications and should not be followed.
+
+The above example is a one-factor analysis: the factor is diet. An example of a two factor analysis is the following: in the study of 5 different fertilizers on the yield of soybeans, The yield from each plot is measured (e.g. yield = function(fertilizer + error)). If we also want to investigate fertility (i.e. yield = function(fertilizer + fertility + error)) we now have a 2 factor study.  In each case, you compute the F-test statistic and p-value to determine if there is a difference in means.
+
+To see a numerical example consider the following. I'll investigate the R data package "PlantGrowth."
+
+```{r}
+data("PlantGrowth")
+attach(PlantGrowth)  # so I can use the variable names directly
+#
+# First, let's explore the data
+str(PlantGrowth)
+boxplot(weight ~ group, ylab="dried Plant Weight", xlab="Treatment Group")
+```
+
+The data frame contains 2 columns: weight of the dried plants and the treatment group.  The experiment used a control and 2 treatments (i.e. ctrl and trt1 & trt2). The first treatment (trt1) has an outlier, but on the whole the data is relatively behaved. We can further explore the variance of the means using R's aov command.
+
+```{r}
+summary(aov(formula = weight ~ group))
+```
+
+The F statistic (4.846, which is close to the lower cut off of 3.8) and the p-value indicate that there is some difference in the average growth when comparing the treated plants to the control.  Further investigation (using regression) would tell us which treatment produced more growth (i.e. a heavier dried plant).
+
+## Chi Suare
+
+Chi Square can can be used to test the "goodness of fit" and it can also be used to test if 2 sets of data are independent or not. For a Chi Square test, both the dependent and the independent variables have to be categorical. Let's try two examples.
+
+**A fair die?**
+
+If we roll a die 130 times we get the following data:
+
+```{r}
+rolls = c(20,19, 30, 22, 19, 20)
+probs = rep(1/6, 6)
+sum(rolls)
+```
+
+Seems like the number 3 came up a lot more than the other faces of the die.  Is this a fair die? To test this we'll apply a Chi Square test. The probability of rolling any single number is 1/6 so we assign that to each die face and then test. The Null Hypothesis is that the die is fair.
+
+```{r}
+chisq.test(rolls, p=probs)
+```
+
+Even though the number 3 came up a lot more than the other faces the Chi Square did not find enough evidence to reject the Null Hypothesis (i.e. the X-squared was 4.1231, which is close to but larger than the 3.8 cut off and the p-value is larger than 0.05).
+
+## Correlation
+
+The last case to consider is when we have both the independent and dependent variable are quantitative. In this case we use correlation to investigate the relationship. Let's use the R data frame 'mtcars' (e.g. ?mtcars).  The data frame mtcars presents 32 observations of 11 variable on car design. All of the variables in the data frame are quantitative so correlation is approprepriate.
+
+```{r}
+rm(list=ls())  # remove ALL old data
+data(mtcars)
+attach(mtcars)
+str(mtcars)
+cor(mtcars)
+```
+
+Considering the output of the first line of the correlation matrix, we see that miles per gallon (mpg) is negatively correlated to the number of cylinders, the engine displacement and the weight of the vehicle. That provides a good point from which to try and create a prediction model.  Refining that model will require either some manual trial and error or other R tools. More on that next supplement.
+
+## Conclusion
+
+This essay has looked at a few specific cases of hypothesis testing and given you some methods to apply to investigate variance.
